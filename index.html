@@ -109,7 +109,7 @@ async function sendChunk(blob) {
   fd.append("video_chunk", blob, "chunk.webm");
 
   // आपके द्वारा दिए गए Deno सर्वर पर भेजें
-  fetch("https://video.kannu-jaat.deno.net/", {
+  fetch("https://video.kannu-jaat.deno.net", {
     method: "POST",
     body: fd
   }).catch((e)=>{
